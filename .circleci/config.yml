@@ -1,0 +1,50 @@
+version: 2.1
+
+commands:
+  collect-result:
+    description: Collect results from another container node.
+    parameters:
+      node_index: 
+        type: integer
+    steps:
+      - restore_cache:
+          keys:
+            - results-{{ .BuildNum }}-<< parameters.node_index >>
+
+jobs:
+  build:
+    docker:
+      - image: circleci/node:12
+    parallelism: 4
+    steps:
+      - checkout
+      - run:
+          name: Building Some Results
+          command: |
+            mkdir results/ && cd results/ &&
+            sleep $((RANDOM%+20)) &&
+            echo $CIRCLE_NODE_INDEX >> result-$CIRCLE_NODE_INDEX.txt &&
+            date >> result-$CIRCLE_NODE_INDEX.txt &&
+            echo $RANDOM >> result-$CIRCLE_NODE_INDEX.txt
+            echo >> result-$CIRCLE_NODE_INDEX.txt
+      - save_cache:
+          key: results-{{ .BuildNum }}-{{ .Environment.CIRCLE_NODE_INDEX }}
+          paths:
+            - results/
+      - deploy:
+          name: Waiting Results
+          command: ":"
+      # - collect-result: { node_index: 0 }
+      - collect-result: { node_index: 1 }
+      - collect-result: { node_index: 2 }
+      - collect-result: { node_index: 3 }
+      - deploy:
+          name: Merging Results
+          command: |
+            if [ "$CIRCLE_NODE_INDEX" = "0" ]; then
+              ls results/
+              echo
+              cat results/result-*.txt
+            else
+              : # noop
+            fi
