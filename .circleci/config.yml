@@ -21,12 +21,8 @@ jobs:
       - run:
           name: Building Some Results
           command: |
-            mkdir results/ && cd results/ &&
-            sleep $((RANDOM%+20)) &&
-            echo $CIRCLE_NODE_INDEX >> result-$CIRCLE_NODE_INDEX.txt &&
-            date >> result-$CIRCLE_NODE_INDEX.txt &&
-            echo $RANDOM >> result-$CIRCLE_NODE_INDEX.txt
-            echo >> result-$CIRCLE_NODE_INDEX.txt
+            mkdir results/ &&
+            ./dummy_slow.sh > results/result-$CIRCLE_NODE_INDEX.txt
       - save_cache:
           key: results-{{ .BuildNum }}-{{ .Environment.CIRCLE_NODE_INDEX }}
           paths:
