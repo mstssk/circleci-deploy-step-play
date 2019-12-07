@@ -34,13 +34,9 @@ jobs:
       - collect-result: { node_index: 1 }
       - collect-result: { node_index: 2 }
       - collect-result: { node_index: 3 }
-      - deploy:
+      - deploy: # This step runs only in 0th node.
           name: Merging Results
           command: |
-            if [ "$CIRCLE_NODE_INDEX" = "0" ]; then
-              ls results/
-              echo
-              cat results/result-*.txt
-            else
-              : # noop
-            fi
+            ls results/
+            echo
+            cat results/result-*.txt
